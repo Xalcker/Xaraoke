@@ -77,8 +77,8 @@ app.use('/api/get-song-urls', async (req, res) => {
 const setHeaders = (res) => res.setHeader('Content-Type', 'application/javascript');
 
 app.use(serveStatic(__dirname));
-app.use('/js', serveStatic(join(__dirname, '../dist'), { index: false, setHeaders }));
-app.use('/node_modules', serveStatic(join(__dirname, '../node_modules'), { index: false, setHeaders }));
+app.use('/js', serveStatic('../dist'), { index: false, setHeaders });
+app.use('/node_modules', serveStatic('../node_modules'), { index: false, setHeaders });
 
 app.listen(port, function () {
   console.log(`Server running on http://${ip}:${port} ...`);
