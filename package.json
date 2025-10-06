@@ -1,0 +1,31 @@
+{
+  "name": "xaraoke",
+  "version": "1.0.0",
+  "description": "Karaoke basado en Web con almacenamiento MP3+CDG en S3 (o compatible).",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xalcker/Xaraoke.git"
+  },
+  "keywords": [
+    "Karaoke",
+    "S3",
+    "MP3",
+    "CDG",
+    "WebUI",
+    "Java"
+  ],
+  "author": "Xalcker",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Xalcker/Xaraoke/issues"
+  },
+  "homepage": "https://github.com/Xalcker/Xaraoke#readme",
+  "dependencies": {
+    "cdgplayer": "^0.1.17",
+    "dotenv": "^17.2.3"
+  }
+}
