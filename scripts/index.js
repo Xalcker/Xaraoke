@@ -1,4 +1,5 @@
 import { CDGPlayer, CDGControls } from './js/cdgplayer.js';
+const { join } = require('path');
 
 let currentPlayer = null;
 

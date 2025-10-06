@@ -2,11 +2,8 @@
   "name": "xaraoke",
   "version": "1.0.0",
   "description": "Karaoke basado en Web con almacenamiento MP3+CDG en S3 (o compatible).",
-  "main": "index.js",
-  "scripts": {
-    "test": "jest",
-    "start": "node ./scripts/server.js"
-  },
+  "main": "dist/cdgplayer.js",
+  "module": "dist/cdgplayer.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Xalcker/Xaraoke.git"
@@ -20,11 +17,20 @@
     "Java"
   ],
   "author": "Xalcker",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Xalcker/Xaraoke/issues"
+  "license": "GPL-3.0-or-later",
+  "files": [
+    "dist/**/*",
+    "index.html",
+    "index.js",
+    "server.js",
+    "CDGPlayer.svg"
+  ],
+  "scripts": {
+    "build": "rollup -c ./configs/rollup.config.mjs",
+    "watch": "rollup -c ./configs/rollup.config.mjs --watch",
+    "release": "standard-version",
+    "start": "node ./scripts/server.js"
   },
-  "homepage": "https://github.com/Xalcker/Xaraoke#readme",
   "devDependencies": {
     "@babel/core": "7.20.12",
     "@babel/eslint-parser": "7.19.1",
@@ -62,13 +68,12 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.901.0",
     "@aws-sdk/s3-request-presigner": "^3.901.0",
-    "cdgplayer": "^0.1.17",
-    "connect": "^3.7.0",
     "dotenv": "^17.2.3",
     "jsmediatags": "3.9.7",
     "jszip": "3.10.1",
-    "jszip-utils": "0.1.0",
-    "open": "^10.2.0",
-    "serve-static": "^2.2.0"
+    "jszip-utils": "0.1.0"
+  },
+  "resolutions": {
+    "tar": ">=4.4.2"
   }
 }
