@@ -41,44 +41,44 @@ app.use('/api/songs', async (req, res) => {
 });
 
 app.use('/api/get-song-urls', async (req, res) => {
-    const urlParams = new URLSearchParams(req.url.split('?')[1]);
-    const songKey = urlParams.get('key');
+  const urlParams = new URLSearchParams(req.url.split('?')[1]);
+  const songKey = urlParams.get('key');
 
-    if (!songKey) {
-        res.statusCode = 400;
-        return res.end('Falta el parámetro "key" de la canción.');
-    }
+  if (!songKey) {
+    res.statusCode = 400;
+    return res.end('Falta el parámetro "key" de la canción.');
+  }
 
-    try {
-        const createPresignedUrl = (key) => {
-            const command = new GetObjectCommand({ Bucket: process.env.S3_BUCKET_NAME, Key: key });
-            
-            // =========================================================
-            // ====> ¡CAMBIO REALIZADO AQUÍ! <====
-            // =========================================================
-            return getSignedUrl(s3Client, command, { expiresIn: 300 }); // URL válida por 5 minutos
-        };
+  try {
+    const createPresignedUrl = (key) => {
+      const command = new GetObjectCommand({ Bucket: process.env.S3_BUCKET_NAME, Key: key });
 
-        const [mp3Url, cdgUrl] = await Promise.all([
-            createPresignedUrl(`${songKey}.mp3`),
-            createPresignedUrl(`${songKey}.cdg`),
-        ]);
+      // =========================================================
+      // ====> ¡CAMBIO REALIZADO AQUÍ! <====
+      // =========================================================
+      return getSignedUrl(s3Client, command, { expiresIn: 60 }); // URL válida por 1 minuto
+    };
 
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ mp3Url, cdgUrl }));
+    const [mp3Url, cdgUrl] = await Promise.all([
+      createPresignedUrl(`${songKey}.mp3`),
+      createPresignedUrl(`${songKey}.cdg`),
+    ]);
 
-    } catch (error) {
-        console.error('Error al generar URLs prefirmadas:', error);
-        res.statusCode = 500;
-        res.end('Error interno del servidor.');
-    }
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ mp3Url, cdgUrl }));
+
+  } catch (error) {
+    console.error('Error al generar URLs prefirmadas:', error);
+    res.statusCode = 500;
+    res.end('Error interno del servidor.');
+  }
 });
 
 const setHeaders = (res) => res.setHeader('Content-Type', 'application/javascript');
 
 app.use(serveStatic(__dirname));
-app.use('/js', serveStatic('../dist'), { index: false, setHeaders });
-app.use('/node_modules', serveStatic('../node_modules'), { index: false, setHeaders });
+app.use('/js', serveStatic(path.join(__dirname, '../dist'), { index: false, setHeaders }));
+app.use('/node_modules', serveStatic(path.join(__dirname, '../node_modules'), { index: false, setHeaders }));
 
 app.listen(port, function () {
   console.log(`Server running on http://${ip}:${port} ...`);
