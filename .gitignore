@@ -1,2 +1,6 @@
-.env
 node_modules
+.idea
+!/zipfiles
+/zipfiles/*
+!/zipfiles/README.md
+.env
