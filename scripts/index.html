@@ -8,10 +8,9 @@
     <script type="text/javascript" src="./node_modules/jszip/dist/jszip.min.js"></script>
     <script type="text/javascript" src="./node_modules/jszip-utils/dist/jszip-utils.min.js"></script>
     <script type="text/javascript" src="./node_modules/jsmediatags/dist/jsmediatags.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reset-css@4.0.1/reset.min.css">
+    <script type="module" src="index.js"></script>
 
     <style>
-        /* Estilos generales */
         html,
         body {
             height: 100vh;
@@ -19,44 +18,6 @@
             background-color: #282c34;
             color: white;
             overflow: hidden;
-        }
-
-        /* Contenedor principal de la aplicación con Flexbox */
-        #app {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        /* --- Estructura de Layout --- */
-
-        /* 1. Barra superior (Buscador) */
-        #top-bar {
-            padding: 15px;
-            background-color: #1c1e22;
-            border-bottom: 1px solid #444;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-        }
-
-        #top-bar input {
-            width: 60%;
-            max-width: 400px;
-            padding: 10px;
-            font-size: 1em;
-            border-radius: 5px;
-            border: 1px solid #61dafb;
-        }
-
-        #top-bar button {
-            padding: 10px 20px;
-            font-size: 1em;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            border: none;
         }
 
         #play-button {
@@ -69,111 +30,29 @@
             cursor: not-allowed;
         }
 
-        #stop-button {
-            color: white;
-            background-color: #e74c3c;
+        .cdg-video-player {
+            flex: 1 1 auto;
         }
 
-        #stop-button:hover {
-            background-color: #c0392b;
-        }
-
-        /* Clase para ocultar visualmente la etiqueta pero mantenerla accesible */
-        .visually-hidden {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-
-        /* 2. Área del reproductor */
-        #player-area {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #000;
-        }
-
-        #cdg_wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-
-        #cdg_wrapper canvas {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-
-        /* 3. Área de controles (Footer) */
-        #controls-area {
-            background-color: #222;
-        }
-
-        /* --- CSS para controles compactos --- */
-        #controls-area .cdg-control {
-            padding: 2px 8px !important;
-        }
-
-        #controls-area .cdg-control>div {
-            width: 20px !important;
-            height: 20px !important;
-        }
-
-        #controls-area .cdg-slider {
-            height: 8px !important;
-        }
-
-        #controls-area .cdg-slider::-webkit-slider-thumb {
-            width: 12px !important;
-            height: 12px !important;
-        }
-
-        #controls-area .cdg-slider::-moz-range-thumb {
-            width: 12px !important;
-            height: 12px !important;
-        }
-
-        #controls-area .cdg-time {
-            font-size: 14px !important;
-            line-height: 24px !important;
+        .titleImage {
+            background-image: url(xaraoke.svg);
+            background-size: 90% 90%;
+            background-position: center;
+            background-repeat: no-repeat;
         }
     </style>
 </head>
 
 <body>
-    <div id="app">
-        <header id="top-bar">
-            <label for="song-input" class="visually-hidden">Buscar canción:</label>
 
-            <input type="text" id="song-input" name="song_query" list="song-list-options"
-                placeholder="Busca una canción...">
-
-            <datalist id="song-list-options"></datalist>
-            <button id="play-button" disabled>Reproducir</button>
-            <button id="stop-button" hidden>Detener</button>
-        </header>
-        <main id="player-area">
-            <div id="cdg_wrapper">
-                <h2>Selecciona una canción para comenzar</h2>
-            </div>
-        </main>
-        <footer id="controls-area">
-            <div id="cdg_controls"></div>
-        </footer>
+    <div class="cdg-player">
+        <div id="cdg_wrapper"></div>
+        <div id="cdg_controls"></div>
     </div>
-    <script type="module" src="index.js"></script>
+    <label for="song-input" class="visually-hidden">Song search:</label>
+    <input type="text" id="song-input" name="song_query" list="song-list-options" placeholder="Search of a song...">
+    <datalist id="song-list-options"></datalist>
+    <button id="play-button" disabled>Playback</button>
 </body>
 
 </html>
