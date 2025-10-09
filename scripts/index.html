@@ -1,29 +1,33 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
-    <title>Xaraoke Player</title>
-    <script type="text/javascript" src="./node_modules/jszip/dist/jszip.min.js"></script>
-    <script type="text/javascript" src="./node_modules/jszip-utils/dist/jszip-utils.min.js"></script>
-    <script type="text/javascript" src="./node_modules/jsmediatags/dist/jsmediatags.min.js"></script>
-    <script type="module" src="index.js"></script>
-    <link rel="stylesheet" href="styles.css">
+    <title>CDGKaraoke Example</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.1.0/jszip-utils.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reset-css@4.0.1/reset.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <div id="app">
-        <header id="top-bar">
-            <label for="song-input" class="visually-hidden">Buscar canción:</label>
-            <input type="text" id="song-input" name="song_query" list="song-list-options" placeholder="Busca una canción...">
-            <datalist id="song-list-options"></datalist>
-            <button id="play-button" disabled>Reproducir</button>
-            <button id="stop-button" hidden>Detener</button>
-        </header>
-        <main id="player-area">
-            <div id="cdg_wrapper"></div>
-        </main>
-        <footer id="controls-area">
-            <div id="cdg_controls"></div>
-        </footer>
+  <div id="app">
+    <div id="search-container">
+      <input type="text" id="search-input" list="song-list" placeholder="Cargando canciones...">
+      
+      <button id="play-pause-btn" disabled>▶️ Pausa</button>
+      <button id="stop-btn" disabled>⏹️ Detener</button>
     </div>
+    
+    <datalist id="song-list">
+      </datalist>
+    
+    <div class="cdg-player">
+      <div id="cdg_wrapper" class="titleImage"></div>
+    </div>
+  </div>
+  <script type="module" src="index.js"></script>
 </body>
 </html>

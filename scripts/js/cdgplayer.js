@@ -1,6 +1,6 @@
 /**
  *  @package CDGPlayer 
- *  @version 0.1.10
+ *  @version 0.1.17
  *  @license GPLv3
  *  @copyright Copyright (c) 2018 Stephen G Blades, Jr (AKA 'Cutter')
  *  @author Stephen G Blades, Jr (AKA 'Cutter') - http://cutterscrossing.com

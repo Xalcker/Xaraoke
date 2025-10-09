@@ -1,0 +1,82 @@
+/* Estilos generales y de layout */
+html,
+body {
+  height: 100vh;
+}
+
+body {
+  text-align: center;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  height: 100vh;
+}
+
+.cdg-player {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  overflow: hidden; /* Evita que el reproductor desborde el layout */
+}
+
+#cdg_wrapper {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.cdg-video-player {
+  flex: 1 1 auto;
+}
+
+/* Imagen de placeholder inicial */
+.titleImage {
+  background-image: url(Xaraoke.svg);
+  background-size: 90% 90%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Estilos para el contenedor de búsqueda */
+#search-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-bottom: 1px solid #ccc;
+  gap: 10px; /* Espacio entre elementos */
+}
+
+#search-input {
+  width: 60%; /* Reducimos el ancho para dar espacio a los botones */
+  flex-grow: 1; /* Permite que crezca si hay espacio */
+  max-width: 500px;
+}
+
+#play-pause-btn, #stop-btn {
+  padding: 10px 15px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #e7e7e7;
+  transition: background-color 0.2s;
+}
+
+#play-pause-btn:hover:not(:disabled), #stop-btn:hover:not(:disabled) {
+  background-color: #d7d7d7;
+}
+
+#play-pause-btn:disabled, #stop-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

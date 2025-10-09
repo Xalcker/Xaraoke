@@ -1,111 +1,156 @@
 import { CDGPlayer, CDGControls } from './js/cdgplayer.js';
 
-let currentPlayer = null;
-let allSongs = [];
+// --- VARIABLES GLOBALES ---
+const songMap = new Map();
+let cdgPlayer = null; // Instancia reutilizable del reproductor
+let isPlaying = false; // Para controlar el estado de reproducción
 
-// La función 'resetPlayer' ha sido eliminada.
+// --- FUNCIONES DEL REPRODUCTOR ---
 
-function loadPlayer(zipBuffer) {
-  document.getElementById('cdg_wrapper').innerHTML = ''; // Limpia el canvas anterior
+/**
+ * Inicializa el reproductor una sola vez al cargar la página.
+ */
+function initializePlayer() {
+  const cdgWrapper = document.querySelector('#cdg_wrapper');
+  const playPauseBtn = document.querySelector('#play-pause-btn');
+  const stopBtn = document.querySelector('#stop-btn');
   
-  // Si no hay instancia, la crea. Si ya existe, la reutiliza.
-  if (!currentPlayer) {
-    currentPlayer = new CDGPlayer('#cdg_wrapper');
+  if (!cdgPlayer) {
+    cdgPlayer = new CDGPlayer('#cdg_wrapper');
+    
+    // Usamos .props.on para escuchar los eventos del reproductor
+    cdgPlayer.props.on('play', () => {
+      isPlaying = true;
+      playPauseBtn.textContent = '⏸️ Pausa';
+    });
+
+    cdgPlayer.props.on('pause', () => {
+      isPlaying = false;
+      playPauseBtn.textContent = '▶️ Play';
+    });
+
+    cdgPlayer.props.on('stop', () => {
+      isPlaying = false;
+      playPauseBtn.textContent = '▶️ Play';
+      cdgWrapper.classList.add('titleImage'); // Muestra el logo al detener
+    });
+    
+    // Escuchamos el estado para saber cuándo se ha cargado un archivo
+    cdgPlayer.props.on('status', (val) => {
+      if (val === 'File Loaded') {
+        console.log('File Loaded successfully and is ready to play.');
+        
+        // Habilitamos los botones pero NO iniciamos la reproducción
+        playPauseBtn.disabled = false;
+        stopBtn.disabled = false;
+        
+        // Nos aseguramos de que el botón muestre "Play"
+        playPauseBtn.textContent = '▶️ Play';
+        isPlaying = false;
+      }
+    });
   }
+}
 
-  new CDGControls('#cdg_controls', currentPlayer);
-  document.getElementById('play-button').disabled = true;
-  document.getElementById('stop-button').hidden = false;
+/**
+ * Carga los datos de un archivo en la instancia existente del reproductor.
+ * @param {ArrayBuffer} fileData - Los datos binarios del archivo .zip.
+ */
+function loadSong(fileData) {
+  console.log('Attempting to load song into player...');
+  cdgPlayer.load(fileData);
+}
+
+/**
+ * Descarga el archivo de la canción desde la URL prefirmada y lo pasa a la función de carga.
+ * @param {string} url - La URL prefirmada para descargar el archivo.
+ */
+async function loadSongFromUrl(url) {
+  try {
+    document.querySelector('#cdg_wrapper').classList.remove('titleImage');
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to download file: ${response.statusText}`);
+    }
+    const fileData = await response.arrayBuffer();
+    loadSong(fileData);
+  } catch (error) {
+    console.error('Error loading song from URL:', error);
+    alert('No se pudo cargar la canción. Revisa la consola.');
+    document.querySelector('#cdg_wrapper').classList.add('titleImage');
+  }
+}
+
+// --- LÓGICA DEL AUTOCOMPLETADO ---
+
+/**
+ * Puebla el <datalist> con las opciones de canciones obtenidas del servidor.
+ * @param {string[]} songList - Un array de "keys" de canciones desde S3.
+ */
+function populateDatalist(songList) {
+    const datalist = document.querySelector('#song-list');
+    datalist.innerHTML = '';
+    songList.forEach(songKey => {
+        const songName = songKey.replace('ZIP/', '').replace('.zip', '');
+        const option = document.createElement('option');
+        option.value = songName;
+        datalist.appendChild(option);
+        songMap.set(songName, songKey);
+    });
+}
+
+/**
+ * Obtiene la lista de canciones desde nuestro backend y llama a la función para poblar el datalist.
+ */
+async function fetchAndPopulateSongs() {
+    const searchInput = document.querySelector('#search-input');
+    try {
+        const response = await fetch('/api/songs');
+        const songs = await response.json();
+        populateDatalist(songs);
+        searchInput.placeholder = 'Buscar canción...';
+    } catch (error) {
+        searchInput.placeholder = 'Error al cargar canciones';
+        console.error('Failed to fetch song list:', error);
+    }
+}
+
+// --- LÓGICA PRINCIPAL ---
+
+document.addEventListener('DOMContentLoaded', () => {
+  initializePlayer();
+  fetchAndPopulateSongs();
   
-  currentPlayer.props.on('status', (val) => {
-    if (val === 'File Loaded') {
-      currentPlayer.start();
+  const searchInput = document.querySelector('#search-input');
+  const playPauseBtn = document.querySelector('#play-pause-btn');
+  const stopBtn = document.querySelector('#stop-btn');
+  
+  searchInput.addEventListener('input', async (event) => {
+    const selectedName = event.target.value;
+    
+    if (songMap.has(selectedName)) {
+      const selectedSongKey = songMap.get(selectedName);
       
-      const audioElement = document.querySelector('#cdg_wrapper audio');
-      if (audioElement) {
-        // Cuando la canción termina, solo desbloquea la UI de búsqueda
-        audioElement.addEventListener('ended', () => {
-          document.getElementById('cdg_controls').innerHTML = '';
-          document.getElementById('play-button').disabled = false;
-          document.getElementById('stop-button').hidden = true;
-        });
+      try {
+        const encodedKey = encodeURIComponent(selectedSongKey);
+        const response = await fetch(`/api/song-url?key=${encodedKey}`);
+        const data = await response.json();
+        await loadSongFromUrl(data.url);
+        
+        searchInput.value = '';
+        
+      } catch (error) {
+        console.error('Could not get the signed URL:', error);
+        alert('Error al obtener la URL de la canción.');
       }
     }
   });
 
-  currentPlayer.load(zipBuffer);
-}
+  playPauseBtn.addEventListener('click', () => {
+    cdgPlayer.togglePlay(); 
+  });
 
-async function loadAndPlayFromUrls(mp3Url, cdgUrl) {
-  try {
-    const [mp3Response, cdgResponse] = await Promise.all([ fetch(mp3Url), fetch(cdgUrl) ]);
-    if (!mp3Response.ok || !cdgResponse.ok) throw new Error(`Error downloading files`);
-    const [mp3Buffer, cdgBuffer] = await Promise.all([ mp3Response.arrayBuffer(), cdgResponse.arrayBuffer() ]);
-    const zip = new JSZip();
-    zip.file('song.mp3', mp3Buffer);
-    zip.file('song.cdg', cdgBuffer);
-    const zipBuffer = await zip.generateAsync({ type: 'arraybuffer' });
-    loadPlayer(zipBuffer);
-  } catch (error) {
-    console.error('Error processing karaoke from URLs:', error);
-    document.getElementById('cdg_wrapper').innerHTML = '<h2>Error al cargar la canción</h2>';
-  }
-}
-
-async function populateSongList() {
-    const playButton = document.getElementById('play-button');
-    const songInputElement = document.getElementById('song-input');
-    try {
-        const response = await fetch('/get-song-list');
-        if (!response.ok) throw new Error('Could not get the song list from the server.');
-        allSongs = await response.json();
-        allSongs.sort();
-        const dataListElement = document.getElementById('song-list-options');
-        dataListElement.innerHTML = '';
-        allSongs.forEach(songKey => {
-            const option = document.createElement('option');
-            option.value = songKey;
-            dataListElement.appendChild(option);
-        });
-        songInputElement.placeholder = "Busca una canción...";
-        playButton.disabled = false;
-    } catch (error) {
-        console.error(error);
-        songInputElement.placeholder = 'Error al cargar canciones';
-    }
-}
-
-// ===================================================================
-//  INICIO DE LA APLICACIÓN
-// ===================================================================
-
-populateSongList();
-
-document.getElementById('play-button').addEventListener('click', async () => {
-    const songInput = document.getElementById('song-input');
-    const songKey = songInput.value;
-    if (!allSongs.includes(songKey)) {
-        alert('Por favor, selecciona una canción válida de la lista.');
-        songInput.focus();
-        return;
-    }
-    try {
-        const urlResponse = await fetch(`/api/get-song-urls?key=${encodeURIComponent(songKey)}`);
-        if (!urlResponse.ok) throw new Error('Could not get the song URLs.');
-        const { mp3Url, cdgUrl } = await urlResponse.json();
-        loadAndPlayFromUrls(mp3Url, cdgUrl);
-    } catch (error) {
-        console.error(error);
-        alert('Error al cargar la canción seleccionada.');
-    }
-});
-
-document.getElementById('stop-button').addEventListener('click', () => {
-    if (currentPlayer) {
-        currentPlayer.stop();
-        // Al detener, solo desbloquea la UI de búsqueda sin limpiar la pantalla
-        document.getElementById('cdg_controls').innerHTML = '';
-        document.getElementById('play-button').disabled = false;
-        document.getElementById('stop-button').hidden = true;
-    }
+  stopBtn.addEventListener('click', () => {
+    cdgPlayer.stop();
+  });
 });
