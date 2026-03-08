@@ -1,5 +1,5 @@
 {
-  "name": "xaraoke2",
+  "name": "xaraoke",
   "version": "1.0.0",
   "description": "Karaoke Web con almacenamiento en S3",
   "main": "index.js",
