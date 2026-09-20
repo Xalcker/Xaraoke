@@ -36,6 +36,9 @@ S3_REGION=us-east-1
 S3_ACCESS_KEY_ID=tu_access_key
 S3_SECRET_ACCESS_KEY=tu_secret_key
 S3_BUCKET_NAME=nombre-de-tu-bucket
+
+# Opcional: puerto del servidor (por defecto 8081)
+PORT=8081
 ```
 
 4. Organiza tus archivos de karaoke en el bucket S3 dentro de una carpeta llamada `ZIP/`:
@@ -54,7 +57,7 @@ tu-bucket/
 npm start
 ```
 
-2. El navegador se abrirá automáticamente en `http://localhost:8081`
+2. El navegador se abrirá automáticamente en `http://localhost:8081` (o el puerto que hayas definido en `PORT`)
 
 3. Busca una canción usando el campo de búsqueda
 
@@ -71,6 +74,8 @@ xaraoke/
 │   ├── index.html             # Interfaz principal
 │   ├── index.js               # Lógica del cliente
 │   ├── server.js              # Servidor Node.js
+│   ├── lib.js                 # Funciones puras (testeadas por separado)
+│   ├── lib.test.js            # Tests unitarios
 │   ├── style.css              # Estilos
 │   └── xaraoke.svg            # Logo
 ├── .env                       # Configuración (no incluido en git)
@@ -99,6 +104,14 @@ xaraoke/
 El proyecto utiliza URLs prefirmadas para acceder a los archivos de forma segura. Las URLs expiran después de 30 segundos por defecto.
 
 Para usar con MinIO u otro servicio compatible con S3, simplemente ajusta el `S3_ENDPOINT` en tu archivo `.env`.
+
+## Tests
+
+El proyecto usa el test runner incorporado de Node.js (sin dependencias extra):
+
+```bash
+npm test
+```
 
 ## Autor
 

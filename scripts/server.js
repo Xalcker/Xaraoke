@@ -5,17 +5,19 @@ const path = require('path');
 const connect = require('connect');
 const serveStatic = require('serve-static');
 const ip = require('localip')();
-const port = 8081;
 
 // --- NUEVAS DEPENDENCIAS ---
 require('dotenv').config(); // Para leer el archivo .env
 const { S3Client, ListObjectsV2Command, GetObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const { URL } = require('url');
+const { getMissingEnvVars, extractSongKeys } = require('./lib');
+
+const port = process.env.PORT || 8081;
 
 // --- VALIDACIÓN DE VARIABLES DE ENTORNO ---
 const REQUIRED_ENV_VARS = ['S3_ENDPOINT', 'S3_REGION', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'S3_BUCKET_NAME'];
-const missingEnvVars = REQUIRED_ENV_VARS.filter(name => !process.env[name]);
+const missingEnvVars = getMissingEnvVars(process.env, REQUIRED_ENV_VARS);
 if (missingEnvVars.length > 0) {
   console.error(`Faltan variables de entorno requeridas: ${missingEnvVars.join(', ')}`);
   console.error('Creá un archivo .env en la raíz del proyecto (ver .env.example).');
@@ -49,10 +51,7 @@ connect()
         });
         const response = await s3Client.send(command);
         // Filtramos para obtener solo los nombres de archivo y no la carpeta
-        // (response.Contents no existe si no hay objetos bajo el prefijo)
-        const songs = (response.Contents || [])
-            .map(item => item.Key)
-            .filter(key => key !== 'ZIP/');
+        const songs = extractSongKeys(response, 'ZIP/');
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(songs));
