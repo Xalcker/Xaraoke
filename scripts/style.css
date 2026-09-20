@@ -39,7 +39,7 @@ body {
 
 /* Imagen de placeholder inicial */
 .titleImage {
-  background-image: url(Xaraoke.svg);
+  background-image: url(xaraoke.svg);
   background-size: 90% 90%;
   background-position: center;
   background-repeat: no-repeat;
