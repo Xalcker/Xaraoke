@@ -67,8 +67,6 @@ npm start
 ```
 xaraoke/
 ├── scripts/
-│   ├── js/
-│   │   └── cdgplayer.js      # Reproductor CDG
 │   ├── favicon.ico
 │   ├── index.html             # Interfaz principal
 │   ├── index.js               # Lógica del cliente

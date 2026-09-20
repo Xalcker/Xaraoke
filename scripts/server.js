@@ -83,7 +83,10 @@ connect()
     next();
   })
   .use(serveStatic(__dirname)) // Sirve archivos como index.html
-  
+  // Sirve el build oficial de cdgplayer directamente desde node_modules,
+  // para no mantener una copia duplicada del archivo en el repo.
+  .use('/vendor/cdgplayer', serveStatic(path.join(__dirname, '..', 'node_modules', 'cdgplayer', 'dist')))
+
   .listen(port, async () => {
     console.log(`Server running on http://${ip}:${port} ...`);
     const open = (await import('open')).default;
