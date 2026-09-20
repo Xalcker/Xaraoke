@@ -1,4 +1,4 @@
-import { CDGPlayer, CDGControls } from './js/cdgplayer.js';
+import { CDGPlayer, CDGControls } from '/vendor/cdgplayer/cdgplayer.js';
 
 // --- VARIABLES GLOBALES ---
 const songMap = new Map();

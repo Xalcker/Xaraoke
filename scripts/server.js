@@ -5,13 +5,24 @@ const path = require('path');
 const connect = require('connect');
 const serveStatic = require('serve-static');
 const ip = require('localip')();
-const port = 8081;
 
 // --- NUEVAS DEPENDENCIAS ---
 require('dotenv').config(); // Para leer el archivo .env
 const { S3Client, ListObjectsV2Command, GetObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const { URL } = require('url');
+const { getMissingEnvVars, extractSongKeys } = require('./lib');
+
+const port = process.env.PORT || 8081;
+
+// --- VALIDACIÓN DE VARIABLES DE ENTORNO ---
+const REQUIRED_ENV_VARS = ['S3_ENDPOINT', 'S3_REGION', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'S3_BUCKET_NAME'];
+const missingEnvVars = getMissingEnvVars(process.env, REQUIRED_ENV_VARS);
+if (missingEnvVars.length > 0) {
+  console.error(`Faltan variables de entorno requeridas: ${missingEnvVars.join(', ')}`);
+  console.error('Creá un archivo .env en la raíz del proyecto (ver .env.example).');
+  process.exit(1);
+}
 
 // --- NUEVA CONFIGURACIÓN DEL CLIENTE S3 ---
 // Lee las credenciales y configuración desde el archivo .env
@@ -40,9 +51,7 @@ connect()
         });
         const response = await s3Client.send(command);
         // Filtramos para obtener solo los nombres de archivo y no la carpeta
-        const songs = response.Contents
-            .map(item => item.Key)
-            .filter(key => key !== 'ZIP/');
+        const songs = extractSongKeys(response, 'ZIP/');
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(songs));
@@ -83,7 +92,10 @@ connect()
     next();
   })
   .use(serveStatic(__dirname)) // Sirve archivos como index.html
-  
+  // Sirve el build oficial de cdgplayer directamente desde node_modules,
+  // para no mantener una copia duplicada del archivo en el repo.
+  .use('/vendor/cdgplayer', serveStatic(path.join(__dirname, '..', 'node_modules', 'cdgplayer', 'dist')))
+
   .listen(port, async () => {
     console.log(`Server running on http://${ip}:${port} ...`);
     const open = (await import('open')).default;
