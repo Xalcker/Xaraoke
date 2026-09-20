@@ -13,6 +13,15 @@ const { S3Client, ListObjectsV2Command, GetObjectCommand } = require('@aws-sdk/c
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const { URL } = require('url');
 
+// --- VALIDACIÓN DE VARIABLES DE ENTORNO ---
+const REQUIRED_ENV_VARS = ['S3_ENDPOINT', 'S3_REGION', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'S3_BUCKET_NAME'];
+const missingEnvVars = REQUIRED_ENV_VARS.filter(name => !process.env[name]);
+if (missingEnvVars.length > 0) {
+  console.error(`Faltan variables de entorno requeridas: ${missingEnvVars.join(', ')}`);
+  console.error('Creá un archivo .env en la raíz del proyecto (ver .env.example).');
+  process.exit(1);
+}
+
 // --- NUEVA CONFIGURACIÓN DEL CLIENTE S3 ---
 // Lee las credenciales y configuración desde el archivo .env
 const s3Client = new S3Client({
@@ -40,7 +49,8 @@ connect()
         });
         const response = await s3Client.send(command);
         // Filtramos para obtener solo los nombres de archivo y no la carpeta
-        const songs = response.Contents
+        // (response.Contents no existe si no hay objetos bajo el prefijo)
+        const songs = (response.Contents || [])
             .map(item => item.Key)
             .filter(key => key !== 'ZIP/');
 
